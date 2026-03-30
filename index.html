@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Balancer Cross-Chain — Bridge to Balancer Networks, Cross-Chain Gauges &amp; Multi-Chain LP Guide (2026)</title>
+  <meta name="description" content="Complete Balancer cross-chain guide (2026): how to bridge assets to Balancer-deployed networks (Arbitrum, Optimism, Polygon, Base, Avalanche), cross-chain gauge voting with veBAL, moving LP positions across chains, supported bridges, and multi-chain Balancer strategy guide.">
+  <meta name="author" content="Crypto Finance Experts">
+  <link rel="canonical" href="https://balancer-bridge-guide.example.com/">
+  <link rel="icon" type="image/png" href="bal.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://balancer-bridge-guide.example.com/">
+  <meta property="og:title" content="Balancer Cross-Chain — Bridge to Balancer Networks &amp; Multi-Chain LP Guide (2026)">
+  <meta property="og:description" content="Practical Balancer cross-chain guide: bridging assets to Balancer L2s, cross-chain gauge voting, multi-network LP strategy, and veBAL cross-chain mechanics.">
+  <meta property="og:image" content="cover.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Balancer Cross-Chain Bridge Guide (2026)">
+  <meta name="twitter:description" content="How to bridge assets to Balancer-deployed networks, cross-chain gauge voting, and multi-chain LP strategy for 2026.">
+
+  <style>
+    :root {
+      --p:    #6B45DC;
+      --p2:   #5A38C4;
+      --p3:   #472DAE;
+      --pa:   #9A7EF0;
+      --pb:   #C4B5FD;
+      --pc:   #EDE9FE;
+      --pk:   #38BDF8;   /* teal chain accent */
+
+      --ink:   #FAF8FF;
+      --sub:   #C4B5FD;
+      --muted: #94A3B8;
+      --dim:   #64748B;
+
+      --bg:    #07050F;
+      --card:  rgba(255,255,255,.028);
+      --line:  rgba(255,255,255,.07);
+      --lp:    rgba(107,69,220,.15);
+
+      --ok:   #34D399;
+      --warn: #FBBF24;
+      --err:  #F87171;
+
+      --r:  12px;
+      --rl: 18px;
+      --gap: 1.2rem;
+      --sh: 0 8px 28px rgba(0,0,0,.60);
+      --shp: 0 4px 24px rgba(107,69,220,.15);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
+    html { scroll-behavior: smooth }
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 900px 520px at 0%   0%,  rgba(90,56,196,.12), transparent 55%),
+        radial-gradient(ellipse 700px 400px at 100% 8%,  rgba(56,189,248,.05), transparent 50%),
+        radial-gradient(ellipse 600px 360px at 50%  98%, rgba(71,45,174,.08),  transparent 55%);
+      color: var(--muted);
+      line-height: 1.72;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    a { color: var(--pa); text-decoration: none }
+    a:hover { text-decoration: underline }
+    img { max-width: 100%; height: auto; display: block }
+    strong { color: #DDD6FE; font-weight: 600 }
+    .container { max-width: 1080px; margin: 0 auto; padding: 0 1.4rem }
+
+    h1,h2,h3,h4 { color: var(--ink); line-height: 1.25 }
+    h1 { font-size: clamp(2rem,5vw,3.1rem); font-weight: 800; letter-spacing: -.4px }
+    h2 { font-size: clamp(1.25rem,2.5vw,1.75rem); font-weight: 700; margin-top: 1.8rem; padding-top: .7rem; border-top: 1px solid var(--line) }
+    h3 { font-size: 1.08rem; font-weight: 700; color: var(--sub) }
+    p,li,td,th { font-size: 1rem; line-height: 1.75 }
+    .lead { font-size: 1.08rem; color: #BAB4F7 }
+
+    /* HERO */
+    header.hero {
+      padding: clamp(2.5rem,6vw,5rem) 0 clamp(2rem,4vw,3.5rem);
+      border-bottom: 1px solid var(--line);
+    }
+    .hero-card {
+      background: rgba(90,56,196,.05);
+      border: 1px solid var(--lp);
+      border-radius: var(--rl);
+      padding: clamp(1.4rem,3.5vw,2.4rem);
+      box-shadow: var(--sh), var(--shp);
+      position: relative; overflow: hidden;
+    }
+    .hero-card::after {
+      content: '';
+      position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(154,126,240,.55), transparent);
+    }
+
+    .brand-row { display: flex; align-items: center; gap: .9rem; margin-bottom: 1rem }
+    .brand-logo {
+      width: 54px; height: 54px; border-radius: 13px;
+      border: 1px solid rgba(107,69,220,.28);
+      background: rgba(90,56,196,.10);
+      padding: .3rem; object-fit: contain;
+      box-shadow: 0 4px 14px rgba(107,69,220,.22);
+      flex: 0 0 auto;
+    }
+    .brand-label { color: var(--dim); font-size: .85rem; font-weight: 600; text-transform: uppercase; letter-spacing: .4px }
+    .brand-sub   { color: var(--muted); font-size: .85rem }
+
+    /* CTA */
+    .cta-center { display: flex; justify-content: center; margin-top: 2rem }
+    .cta {
+      display: inline-flex; align-items: center; gap: .7rem;
+      background: linear-gradient(135deg, #9A7EF0 0%, #6B45DC 42%, #5A38C4 76%, #472DAE 100%);
+      color: #fff;
+      padding: 1.2rem 3rem;
+      border-radius: 16px;
+      font-weight: 900; font-size: 1.15rem; letter-spacing: .15px;
+      box-shadow:
+        0 0 0 1px rgba(107,69,220,.28),
+        0 0 32px rgba(107,69,220,.34),
+        0 8px 22px rgba(90,56,196,.30),
+        0 20px 48px rgba(71,45,174,.22);
+      border: none; cursor: pointer; text-decoration: none;
+      transition: transform .18s, box-shadow .18s, filter .18s;
+    }
+    .cta:hover {
+      transform: translateY(-3px) scale(1.025); filter: brightness(1.08);
+      color: #fff; text-decoration: none;
+      box-shadow:
+        0 0 0 1px rgba(107,69,220,.44),
+        0 0 46px rgba(107,69,220,.48),
+        0 10px 28px rgba(90,56,196,.40),
+        0 26px 58px rgba(71,45,174,.32);
+    }
+
+    /* NOTE */
+    .note {
+      border-left: 3px solid var(--pa);
+      padding: .8rem 1rem;
+      background: rgba(90,56,196,.07);
+      border-radius: 0 9px 9px 0;
+      color: var(--sub); margin-top: 1rem;
+    }
+
+    /* STEPS */
+    section.step-guide {
+      padding: clamp(2rem,5vw,3.5rem) 0;
+      border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    }
+    .steps { display: grid; gap: var(--gap); grid-template-columns: 1fr }
+    .step {
+      background: var(--card); border: 1px solid var(--line);
+      border-top: 2px solid rgba(107,69,220,.30); border-radius: var(--r);
+      padding: 1.25rem; box-shadow: var(--sh); transition: transform .18s, box-shadow .18s;
+    }
+    .step:hover { transform: translateY(-3px); box-shadow: var(--sh), var(--shp) }
+    .step .icon {
+      width: 44px; height: 44px; border-radius: 9px;
+      display: inline-grid; place-items: center;
+      background: rgba(90,56,196,.12); margin-bottom: .65rem;
+      font-weight: 800; font-size: .95rem; color: var(--pa);
+      border: 1px solid rgba(107,69,220,.24);
+    }
+
+    /* CARD */
+    main { padding-top: .5rem }
+    main .card {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: var(--r); padding: 1.5rem; margin: 1.2rem 0; box-shadow: var(--sh);
+    }
+    main .card > h2:first-child { margin-top: 0; border-top: none; padding-top: 0 }
+
+    /* TOC */
+    .toc { border: 1px solid var(--lp); background: rgba(90,56,196,.05); border-radius: var(--r); padding: 1.1rem 1.3rem }
+    .toc strong { color: var(--ink) }
+    .toc ul { margin: .5rem 0 0; padding-left: 1.1rem }
+    .toc li { margin: .28rem 0; font-size: .96rem }
+    .toc a { font-weight: 600 }
+
+    /* GRID */
+    .callout-grid { display: grid; gap: var(--gap); grid-template-columns: 1fr; margin-top: .8rem }
+    .mini { background: rgba(255,255,255,.02); border: 1px solid var(--line); border-radius: var(--r); padding: 1rem }
+    .mini h3 { margin-bottom: .35rem }
+    .kpi-badges { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .55rem }
+    .kpi-badges span {
+      border: 1px solid rgba(107,69,220,.24); background: rgba(90,56,196,.09);
+      color: var(--sub); padding: .26rem .54rem;
+      border-radius: 999px; font-size: .87rem; font-weight: 600;
+    }
+
+    /* NETWORK CARDS */
+    .network-grid { display: grid; gap: .75rem; grid-template-columns: 1fr; margin-top: 1rem }
+    .network-card {
+      background: rgba(255,255,255,.02);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--pa);
+      border-radius: var(--r);
+      padding: .9rem 1.1rem;
+      display: flex; flex-direction: column; gap: .4rem;
+    }
+    .network-name { font-weight: 800; font-size: 1rem; color: var(--ink) }
+    .network-meta { font-size: .9rem; color: var(--muted) }
+    .network-badges { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .3rem }
+    .network-badges span {
+      background: rgba(107,69,220,.10); border: 1px solid rgba(107,69,220,.22);
+      color: var(--sub); padding: .2rem .5rem;
+      border-radius: 999px; font-size: .82rem; font-weight: 600;
+    }
+
+    /* TABLE */
+    .table-wrap { overflow-x: auto; border-radius: var(--r); border: 1px solid var(--line) }
+    table { width: 100%; border-collapse: collapse; min-width: 480px }
+    th,td { padding: .8rem .95rem; border-bottom: 1px solid var(--line); text-align: left }
+    th { background: rgba(90,56,196,.07); color: var(--ink); font-weight: 700; font-size: .93rem }
+    tr.hi { background: rgba(90,56,196,.04) }
+    tr:hover td { background: rgba(255,255,255,.018) }
+    tr:last-child td { border-bottom: none }
+    .ok { color: var(--ok) } .warn { color: var(--warn) } .err { color: var(--err) }
+
+    /* EEAT */
+    .eeat { background: var(--card); border: 1px solid var(--lp); border-radius: var(--r); padding: 1.5rem; box-shadow: var(--sh) }
+    .eeat > h2:first-child { margin-top: 0; border-top: none; padding-top: 0 }
+
+    /* FAQ */
+    .faq-item { border-bottom: 1px solid var(--line); padding: .9rem 0 }
+    .faq-item:last-child { border-bottom: none }
+    .faq-button { all: unset; display: flex; justify-content: space-between; align-items: flex-start; width: 100%; cursor: pointer; gap: 1rem }
+    .faq-button:focus-visible { outline: 2px solid var(--p); border-radius: 4px }
+    .faq-button h3 { margin: 0; font-weight: 700; font-size: 1rem; line-height: 1.4 }
+    .faq-content { max-height: 0; overflow: hidden; transition: max-height .26s ease }
+    .faq-content.open { padding-top: .65rem }
+    .faq-plus { font-weight: 800; font-size: 1.35rem; color: var(--pa); flex: 0 0 auto; line-height: 1; transition: transform .2s }
+    .faq-button[aria-expanded="true"] .faq-plus { transform: rotate(45deg) }
+
+    @media(min-width:860px){
+      .steps { grid-template-columns: repeat(4,1fr) }
+      .callout-grid { grid-template-columns: 1fr 1fr }
+      .network-grid { grid-template-columns: 1fr 1fr }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero" role="banner">
+  <div class="container">
+    <div class="hero-card">
+      <div class="brand-row">
+        <img class="brand-logo" src="bal.png" alt="Balancer logo">
+        <div>
+          <div class="brand-label">Cross-Chain &amp; Bridge Guide</div>
+          <div class="brand-sub">Multi-Network Balancer · Bridging Assets · Cross-Chain Gauges · veBAL Cross-Chain · LP Migration</div>
+        </div>
+      </div>
+
+      <h1>Balancer Cross-Chain &amp; Bridge</h1>
+      <p class="lead" style="margin-top:.7rem">
+        The complete guide to <strong>Balancer's multi-chain deployment</strong>
+        and cross-chain infrastructure — covering how to
+        <strong>bridge assets to every Balancer-supported network</strong>
+        (Arbitrum, Optimism, Polygon, Base, Avalanche, Gnosis),
+        how <strong>cross-chain gauge voting</strong> lets veBAL holders
+        direct BAL emissions to pools on any network from Ethereum mainnet,
+        how to <strong>migrate LP positions</strong> between chains,
+        which <strong>bridges are recommended</strong> for each network,
+        and the mechanics of <strong>cross-chain BAL reward streaming</strong>
+        that funds liquidity across Balancer's entire multi-chain ecosystem.
+      </p>
+
+      <div class="cta-center">
+        <a href="#" class="cta" aria-label="Open Balancer App">
+          <span>⇌</span> Open Balancer App
+        </a>
+      </div>
+
+      <div class="note">
+        <strong>Important distinction:</strong> Balancer does not operate its own native bridge.
+        Moving assets between Balancer deployments on different chains requires
+        using third-party bridges (official rollup bridges, Stargate, Hop, Across, Bungee).
+        This guide covers the full cross-chain Balancer workflow —
+        which bridges to use, how cross-chain gauges work, and how to LP across multiple networks.
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- STEPS -->
+<section class="step-guide" aria-labelledby="how-works">
+  <div class="container">
+    <h2 id="how-works" style="margin-top:0;border-top:none;padding-top:0">
+      Cross-Chain Balancer Workflow: Bridge → Deploy → Earn → Vote Cross-Chain
+    </h2>
+    <div class="steps" role="list">
+      <article class="step" role="listitem">
+        <div class="icon">01</div>
+        <h3>Bridge assets to your target network</h3>
+        <p>Balancer is deployed on 7+ networks. Use the appropriate bridge — official rollup bridges for Arbitrum/Optimism/Base, or cross-chain aggregators for faster transfers. Ensure you arrive with the native gas token on the destination network.</p>
+      </article>
+      <article class="step" role="listitem">
+        <div class="icon">02</div>
+        <h3>Connect to Balancer on that network</h3>
+        <p>Switch your wallet to the destination chain and open app.balancer.fi — the interface auto-detects your network. The same pool types (weighted, stable, boosted) are available on every Balancer deployment, with chain-specific liquidity pools.</p>
+      </article>
+      <article class="step" role="listitem">
+        <div class="icon">03</div>
+        <h3>LP in cross-chain gauge-approved pools</h3>
+        <p>Balancer's cross-chain gauge system allows pools on L2s to receive BAL emissions voted by veBAL holders on Ethereum mainnet. Staking BPT in a cross-chain gauge earns bridged BAL rewards — the same governance system, spanning multiple networks.</p>
+      </article>
+      <article class="step" role="listitem">
+        <div class="icon">04</div>
+        <h3>Vote cross-chain from Ethereum mainnet</h3>
+        <p>veBAL governance lives on Ethereum mainnet. Holders vote on gauge weights for pools across all supported networks from a single interface. BAL rewards are then bridged to each network via the cross-chain gauge infrastructure.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN -->
+<main class="container" role="main">
+
+  <!-- TOC -->
+  <section class="card toc" aria-label="Table of Contents">
+    <strong>On this page — Balancer Cross-Chain:</strong>
+    <ul>
+      <li><a href="#overview">Balancer's multi-chain architecture: one protocol, many networks</a></li>
+      <li><a href="#networks">All Balancer-supported networks and their characteristics</a></li>
+      <li><a href="#bridging">How to bridge assets to each Balancer network</a></li>
+      <li><a href="#bridge-options">Recommended bridges for each network: comparison and trade-offs</a></li>
+      <li><a href="#cross-chain-gauges">Cross-chain gauges: how BAL emissions reach L2 pools</a></li>
+      <li><a href="#vebal-crosschain">veBAL cross-chain voting: directing emissions from Ethereum mainnet</a></li>
+      <li><a href="#lp-migration">Migrating LP positions across Balancer networks</a></li>
+      <li><a href="#gas">Gas costs and efficiency: choosing the right Balancer network</a></li>
+      <li><a href="#strategy">Multi-chain Balancer strategy: where to LP for best returns</a></li>
+      <li><a href="#safety">Cross-chain risks: bridge risks and multi-chain LP risks</a></li>
+      <li><a href="#best-practices">Best practices for multi-chain Balancer participants</a></li>
+      <li><a href="#troubleshooting">Troubleshooting: missing BAL rewards, bridge delays, network issues</a></li>
+      <li><a href="#eeat">Authoritative sources &amp; references</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+  </section>
+
+  <!-- OVERVIEW -->
+  <section class="card" id="overview">
+    <h2>Balancer's Multi-Chain Architecture: One Protocol, Many Networks</h2>
+    <p>
+      Balancer is deployed as a unified protocol across multiple EVM-compatible networks —
+      each deployment shares the same pool types, smart contract architecture, and
+      Balancer Vault design, but operates as an independent instance with its own liquidity.
+    </p>
+    <p>
+      The unifying layer is <strong>Balancer's governance on Ethereum mainnet</strong> —
+      veBAL vote-locking and the BAL emission schedule are anchored on Ethereum,
+      but the cross-chain gauge infrastructure allows those votes to direct rewards
+      to liquidity pools on any supported chain. This creates a multi-chain liquidity
+      ecosystem governed from a single point.
+    </p>
+
+    <div class="callout-grid">
+      <div class="mini">
+        <h3>Why Balancer went multi-chain</h3>
+        <p style="color:var(--muted)">Ethereum mainnet gas costs make small LP positions economically unviable — a $1,000 LP position paying $50 in gas to add and withdraw is unprofitable. Balancer's L2 deployments bring the same pool mechanics and governance connectivity to chains with sub-cent gas costs, opening Balancer to a much broader participant base.</p>
+        <div class="kpi-badges"><span>Sub-cent gas on L2s</span><span>Same pool types</span><span>Shared governance</span></div>
+      </div>
+      <div class="mini">
+        <h3>What's consistent across chains</h3>
+        <p style="color:var(--muted)">Pool types (weighted, stable, boosted, managed), the Vault architecture, BAL gauge emission eligibility, the same smart contract codebase, and Balancer's Smart Order Router integration. Each chain is a mirror of the core protocol with chain-specific liquidity depth and pool composition.</p>
+        <div class="kpi-badges"><span>Same Vault design</span><span>Same pool types</span><span>Cross-chain gauges</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NETWORKS -->
+  <section class="card" id="networks">
+    <h2>All Balancer-Supported Networks and Their Characteristics</h2>
+
+    <div class="network-grid" role="list">
+      <div class="network-card" role="listitem">
+        <div class="network-name">Ethereum Mainnet</div>
+        <div class="network-meta">The governance hub — veBAL, BAL emissions, deepest TVL</div>
+        <div class="network-badges">
+          <span>veBAL governance home</span><span>Deepest liquidity</span><span>Highest gas</span><span>Institutional scale</span>
+        </div>
+      </div>
+      <div class="network-card" role="listitem">
+        <div class="network-name">Arbitrum One</div>
+        <div class="network-meta">Largest L2 Balancer deployment — strong stablecoin and LST pools</div>
+        <div class="network-badges">
+          <span>Low gas</span><span>Deep stablecoin pools</span><span>Cross-chain gauges</span><span>OP Stack L2</span>
+        </div>
+      </div>
+      <div class="network-card" role="listitem">
+        <div class="network-name">Optimism</div>
+        <div class="network-meta">Active Balancer deployment with OP ecosystem integrations</div>
+        <div class="network-badges">
+          <span>OP token incentives</span><span>Low gas</span><span>Cross-chain gauges</span><span>OP Stack</span>
+        </div>
+      </div>
+      <div class="network-card" role="listitem">
+        <div class="network-name">Polygon PoS</div>
+        <div class="network-meta">Established Balancer deployment with MATIC ecosystem pools</div>
+        <div class="network-badges">
+          <span>Very low gas</span><span>MATIC pools</span><span>DeFi ecosystem</span><span>Cross-chain gauges</span>
+        </div>
+      </div>
+      <div class="network-card" role="listitem">
+        <div class="network-name">Base</div>
+        <div class="network-meta">Fast-growing Balancer deployment on Coinbase's L2</div>
+        <div class="network-badges">
+          <span>Sub-cent gas</span><span>Coinbase ecosystem</span><span>Growing TVL</span><span>OP Stack</span>
+        </div>
+      </div>
+      <div class="network-card" role="listitem">
+        <div class="network-name">Avalanche C-Chain</div>
+        <div class="network-meta">Balancer deployment serving the Avalanche DeFi ecosystem</div>
+        <div class="network-badges">
+          <span>AVAX pools</span><span>Low gas</span><span>Cross-chain gauges</span><span>EVM compatible</span>
+        </div>
+      </div>
+      <div class="network-card" role="listitem">
+        <div class="network-name">Gnosis Chain</div>
+        <div class="network-meta">Balancer's original multi-chain expansion — established stablecoin pools</div>
+        <div class="network-badges">
+          <span>xDAI gas token</span><span>Stable pools</span><span>Deep history</span><span>Cross-chain gauges</span>
+        </div>
+      </div>
+      <div class="network-card" role="listitem">
+        <div class="network-name">zkEVM / Fraxtal / others</div>
+        <div class="network-meta">Expanding deployments — verify current networks in official Balancer app</div>
+        <div class="network-badges">
+          <span>Growing</span><span>Check official docs</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>Chain selection for LPs:</strong> Ethereum mainnet is best for large institutional
+      positions where gas cost is negligible relative to LP size. Arbitrum and Optimism
+      offer the best balance of liquidity depth and low gas for mid-size positions.
+      Polygon and Base suit smaller positions and newer DeFi participants.
+    </div>
+  </section>
+
+  <!-- BRIDGING -->
+  <section class="card" id="bridging">
+    <h2>How to Bridge Assets to Each Balancer Network: Step-by-Step</h2>
+    <p>
+      Balancer does not operate its own bridge. Assets must be moved
+      between networks using established bridge infrastructure before
+      interacting with Balancer on the destination chain.
+    </p>
+
+    <h3>General cross-chain workflow</h3>
+    <ol style="padding-left:1.3rem; margin-top:.5rem">
+      <li style="margin-bottom:.6rem"><strong>Identify your destination network</strong> — decide which Balancer deployment you're targeting based on gas costs, pool availability, and BAL emission APRs.</li>
+      <li style="margin-bottom:.6rem"><strong>Choose the appropriate bridge</strong> — use the official rollup bridge for maximum security (Arbitrum, Optimism, Base) or a third-party bridge for faster transfers. See the bridge comparison below.</li>
+      <li style="margin-bottom:.6rem"><strong>Bridge your primary asset AND destination gas</strong> — ensure you arrive with both the asset you want to LP with AND enough native gas token to execute transactions. Use a bridge with gas drop (Bungee Refuel) if you have no gas on the destination.</li>
+      <li style="margin-bottom:.6rem"><strong>Switch your wallet to the destination network</strong> — add the network via Chainlist.org or configure it manually. Confirm the chain ID matches before connecting to Balancer.</li>
+      <li style="margin-bottom:.6rem"><strong>Open Balancer on the destination chain</strong> — app.balancer.fi auto-detects your network. Browse pools on that specific chain and add liquidity.</li>
+      <li><strong>Stake BPT in the cross-chain gauge</strong> — after receiving LP tokens (BPT), stake in the corresponding gauge to earn BAL emissions bridged from Ethereum mainnet governance.</li>
+    </ol>
+
+    <div class="note">
+      <strong>Gas token requirement per chain:</strong> ETH is required for gas on
+      Arbitrum, Optimism, and Base. MATIC on Polygon. AVAX on Avalanche. xDAI on Gnosis.
+      Always bridge a small amount of the native gas token before or alongside your main asset.
+      Arriving with assets but zero gas means you can't execute any transactions.
+    </div>
+  </section>
+
+  <!-- BRIDGE OPTIONS -->
+  <section class="card" id="bridge-options">
+    <h2>Recommended Bridges for Each Balancer Network: Comparison and Trade-offs</h2>
+
+    <div class="table-wrap">
+      <table aria-label="Bridge recommendations by network">
+        <thead>
+          <tr><th>Destination network</th><th>Official bridge</th><th>Fast bridge options</th><th>Key trade-off</th></tr>
+        </thead>
+        <tbody>
+          <tr class="hi">
+            <td>Arbitrum One</td>
+            <td>bridge.arbitrum.io (~10 min)</td>
+            <td>Hop, Across, Stargate, Bungee</td>
+            <td>Official: secure, 10 min. Fast bridges: 1–5 min, small fee</td>
+          </tr>
+          <tr>
+            <td>Optimism</td>
+            <td>app.optimism.io/bridge (~20 min)</td>
+            <td>Hop, Across, Stargate, Bungee</td>
+            <td>Official: secure, 20 min. Across: fastest for ETH/USDC, ~2 min</td>
+          </tr>
+          <tr class="hi">
+            <td>Base</td>
+            <td>bridge.base.org (7-day exit)</td>
+            <td>Stargate, Bungee, Across</td>
+            <td>Official entry: 20 min. Official exit: 7 days. Use Bungee for fast exit</td>
+          </tr>
+          <tr>
+            <td>Polygon PoS</td>
+            <td>wallet.polygon.technology (~30 min)</td>
+            <td>Stargate, Hop, Bungee, Connext</td>
+            <td>Official: 30 min entry, 7-day exit. Third-party for fast 2-way</td>
+          </tr>
+          <tr class="hi">
+            <td>Avalanche</td>
+            <td>core.app/bridge (native bridge)</td>
+            <td>Stargate, Bungee</td>
+            <td>Native bridge reliable; Stargate offers broader token support</td>
+          </tr>
+          <tr>
+            <td>Gnosis Chain</td>
+            <td>bridge.gnosischain.com</td>
+            <td>Jumper, Bungee</td>
+            <td>Official: secure. Note xDAI is the gas token, not ETH</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout-grid" style="margin-top:1rem">
+      <div class="mini">
+        <h3>When to use official bridges</h3>
+        <p style="color:var(--muted)">Use official rollup bridges (Arbitrum, Optimism, Base) for maximum security — they inherit Ethereum's security guarantees directly. Best for large amounts where the extra wait time (10–30 minutes in, up to 7 days out for Base/Polygon) is acceptable relative to the security premium.</p>
+        <div class="kpi-badges"><span>Maximum security</span><span>Ethereum-backed</span><span>Longer wait</span></div>
+      </div>
+      <div class="mini">
+        <h3>When to use third-party bridges</h3>
+        <p style="color:var(--muted)">Use Across, Hop, Stargate, or Bungee for faster transfers (1–5 minutes) when time matters more than absolute security maximisation. These bridges add trust assumptions beyond the native rollup — liquidity provider risk, smart-contract risk — but are widely audited and used. Always verify via official bridge documentation.</p>
+        <div class="kpi-badges"><span>1–5 min transfer</span><span>Additional trust</span><span>Audit required</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CROSS-CHAIN GAUGES -->
+  <section class="card" id="cross-chain-gauges">
+    <h2>Cross-Chain Gauges: How BAL Emissions Reach Liquidity Pools on L2 Networks</h2>
+    <p>
+      Balancer's <strong>cross-chain gauge system</strong> is the infrastructure that
+      allows BAL token emissions — voted on Ethereum mainnet by veBAL holders —
+      to be distributed to liquidity providers on pools deployed on other networks.
+    </p>
+
+    <div class="table-wrap">
+      <table aria-label="Cross-chain gauge mechanics">
+        <thead>
+          <tr><th>Step</th><th>What happens</th><th>Where it occurs</th></tr>
+        </thead>
+        <tbody>
+          <tr class="hi">
+            <td>1. Gauge approval</td>
+            <td>A pool on any Balancer network applies for gauge approval via DAO governance vote</td>
+            <td>Ethereum mainnet — Balancer governance vote</td>
+          </tr>
+          <tr>
+            <td>2. veBAL vote</td>
+            <td>veBAL holders allocate weight to the approved cross-chain gauge each epoch</td>
+            <td>Ethereum mainnet — veBAL voting interface</td>
+          </tr>
+          <tr class="hi">
+            <td>3. BAL allocation calculated</td>
+            <td>The gauge's BAL share for the epoch is determined by its proportion of total veBAL votes</td>
+            <td>Ethereum mainnet — gauge controller contract</td>
+          </tr>
+          <tr>
+            <td>4. BAL bridged to L2</td>
+            <td>The allocated BAL is bridged from Ethereum to the target network via the chain's canonical bridge</td>
+            <td>Cross-chain — canonical bridge infrastructure</td>
+          </tr>
+          <tr class="hi">
+            <td>5. BAL distributed to LPs</td>
+            <td>Bridged BAL is distributed to BPT stakers in the gauge on the destination chain</td>
+            <td>Destination chain — gauge contract</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <strong>Why cross-chain gauges matter for LPs:</strong> Staking BPT in a
+      cross-chain gauge-approved pool on Arbitrum earns you BAL rewards
+      voted on by Ethereum mainnet veBAL holders — the same reward pool as mainnet LPs.
+      This means L2 LPs can earn BAL emissions without bridging their governance participation
+      or their assets back to mainnet.
+    </div>
+  </section>
+
+  <!-- veBAL CROSS-CHAIN -->
+  <section class="card" id="vebal-crosschain">
+    <h2>veBAL Cross-Chain Voting: Directing BAL Emissions to L2 Pools From Ethereum</h2>
+    <p>
+      <strong>veBAL governance remains anchored on Ethereum mainnet</strong> — all
+      vote-locking of BAL/WETH BPT happens on Ethereum. However, the pools veBAL holders
+      can vote for include <strong>cross-chain gauge pools on any supported network</strong>.
+    </p>
+
+    <div class="callout-grid">
+      <div class="mini">
+        <h3>How cross-chain voting works</h3>
+        <p style="color:var(--muted)">In Balancer's gauge voting interface (on Ethereum mainnet), veBAL holders see all gauge-approved pools across every supported network. You can allocate your voting weight to an Arbitrum pool, a Polygon pool, and an Optimism pool — all from a single Ethereum transaction. The gauge controller records your votes and distributes BAL accordingly.</p>
+        <div class="kpi-badges"><span>Single Ethereum TX</span><span>Multi-network allocation</span><span>Epoch-based</span></div>
+      </div>
+      <div class="mini">
+        <h3>Bribe economics cross-chain</h3>
+        <p style="color:var(--muted)">Protocols on any Balancer-supported network can post bribes via Hidden Hand to attract veBAL votes to their L2 pool. A protocol on Arbitrum can bribe Ethereum veBAL holders to vote for their gauge — connecting the L2 liquidity bootstrapping economy directly to the mainnet governance layer.</p>
+        <div class="kpi-badges"><span>L2 protocols bribe</span><span>ETH mainnet voters</span><span>Hidden Hand</span></div>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>Gauge bribes are network-agnostic:</strong> Whether a pool is on Ethereum,
+      Arbitrum, or Polygon, the bribe marketplace (Hidden Hand) operates on Ethereum mainnet.
+      As a veBAL holder, you evaluate bribes by their per-veBAL yield — not by which
+      chain the pool is on. This creates direct competition between mainnet and L2 pools
+      for veBAL attention, often with L2 pools offering higher bribes
+      to compensate for their lower base liquidity depth.
+    </div>
+  </section>
+
+  <!-- LP MIGRATION -->
+  <section class="card" id="lp-migration">
+    <h2>Migrating LP Positions Across Balancer Networks</h2>
+    <p>
+      Moving an LP position from one Balancer network to another is a multi-step process —
+      there is no direct cross-chain LP migration tool within Balancer itself.
+      The process involves withdrawing, bridging assets, and re-depositing.
+    </p>
+
+    <h3>LP migration step-by-step</h3>
+    <ol style="padding-left:1.3rem; margin-top:.5rem">
+      <li style="margin-bottom:.6rem"><strong>Unstake BPT from gauge</strong> — withdraw your BPT from the gauge on the source chain. Pending BAL rewards should be claimed before unstaking.</li>
+      <li style="margin-bottom:.6rem"><strong>Remove liquidity</strong> — redeem BPT for the underlying tokens from the pool on the source chain. Choose proportional withdrawal to receive all tokens in the pool's ratio.</li>
+      <li style="margin-bottom:.6rem"><strong>Bridge tokens to the destination network</strong> — use the appropriate bridge (see bridge comparison section) to move tokens to your target Balancer network. Ensure you have destination gas.</li>
+      <li style="margin-bottom:.6rem"><strong>Add liquidity on the destination chain</strong> — switch to the destination network, open Balancer, and add liquidity to your target pool. Receive BPT for the new position.</li>
+      <li><strong>Stake BPT in the destination gauge</strong> — immediately stake your new BPT in the cross-chain gauge to begin earning BAL emissions on the destination chain.</li>
+    </ol>
+
+    <div class="note">
+      <strong>Tax implication of LP migration:</strong> Withdrawing liquidity from a
+      Balancer pool (redeeming BPT) is typically a taxable disposal event in most jurisdictions —
+      triggering capital gains on the difference between your BPT cost basis and current value.
+      Each bridge transfer may also be a taxable event in some jurisdictions.
+      Consult a crypto tax professional before migrating large LP positions across chains.
+    </div>
+  </section>
+
+  <!-- GAS -->
+  <section class="card" id="gas">
+    <h2>Gas Costs and Efficiency: Choosing the Right Balancer Network for Your Position Size</h2>
+
+    <div class="table-wrap">
+      <table aria-label="Gas cost comparison by network">
+        <thead>
+          <tr><th>Network</th><th>Typical swap gas</th><th>Typical LP add/remove</th><th>Minimum viable LP size</th></tr>
+        </thead>
+        <tbody>
+          <tr class="hi">
+            <td>Ethereum mainnet</td>
+            <td class="err">$5–$50+</td>
+            <td class="err">$20–$150+</td>
+            <td class="err">$50,000+ for gas to be &lt;1% of position</td>
+          </tr>
+          <tr>
+            <td>Arbitrum One</td>
+            <td class="ok">$0.05–$0.50</td>
+            <td class="ok">$0.10–$1.00</td>
+            <td class="ok">$500+ — gas becomes negligible quickly</td>
+          </tr>
+          <tr class="hi">
+            <td>Optimism</td>
+            <td class="ok">$0.05–$0.50</td>
+            <td class="ok">$0.10–$1.00</td>
+            <td class="ok">$500+ — similar economics to Arbitrum</td>
+          </tr>
+          <tr>
+            <td>Polygon PoS</td>
+            <td class="ok">&lt;$0.01</td>
+            <td class="ok">&lt;$0.05</td>
+            <td class="ok">$100+ — extremely low cost</td>
+          </tr>
+          <tr class="hi">
+            <td>Base</td>
+            <td class="ok">&lt;$0.01</td>
+            <td class="ok">$0.01–$0.05</td>
+            <td class="ok">$100+ — among cheapest options</td>
+          </tr>
+          <tr>
+            <td>Avalanche</td>
+            <td class="ok">$0.05–$0.30</td>
+            <td class="ok">$0.10–$0.50</td>
+            <td class="ok">$300+ — gas efficient</td>
+          </tr>
+          <tr class="hi">
+            <td>Gnosis Chain</td>
+            <td class="ok">&lt;$0.01</td>
+            <td class="ok">&lt;$0.02</td>
+            <td class="ok">$50+ — near-zero gas costs</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <strong>Rule of thumb:</strong> Gas costs should represent less than 0.5% of your
+      total LP position size for the economics to be viable over a reasonable time horizon.
+      For Ethereum mainnet at $50 gas per transaction, this requires a $10,000+ position.
+      For Arbitrum at $0.50 per transaction, a $100 position already clears the threshold.
+    </div>
+  </section>
+
+  <!-- STRATEGY -->
+  <section class="card" id="strategy">
+    <h2>Multi-Chain Balancer Strategy: Where to LP for Best Returns</h2>
+    <p>
+      The optimal Balancer network depends on your position size, risk tolerance,
+      target pool type, and whether you're participating in veBAL governance.
+    </p>
+
+    <div class="table-wrap">
+      <table aria-label="Strategic LP allocation by profile">
+        <thead>
+          <tr><th>LP profile</th><th>Recommended networks</th><th>Strategy rationale</th></tr>
+        </thead>
+        <tbody>
+          <tr class="hi">
+            <td>Large institutional LP ($100k+)</td>
+            <td>Ethereum mainnet + Arbitrum</td>
+            <td>Ethereum for deepest liquidity and native veBAL access; Arbitrum for secondary positions with lower gas friction on active management</td>
+          </tr>
+          <tr>
+            <td>Mid-size active LP ($10k–$100k)</td>
+            <td>Arbitrum, Optimism</td>
+            <td>Deep liquidity, active gauge emissions, low gas for frequent compounding and position management. Best balance of depth and cost</td>
+          </tr>
+          <tr class="hi">
+            <td>Smaller LP ($1k–$10k)</td>
+            <td>Base, Polygon, Gnosis</td>
+            <td>Near-zero gas makes position management cost-effective. Growing BAL emissions on Base; established stable pools on Polygon and Gnosis</td>
+          </tr>
+          <tr>
+            <td>veBAL governance participant</td>
+            <td>Ethereum mainnet (must)</td>
+            <td>veBAL locking is Ethereum mainnet only — governance participants must maintain an Ethereum presence regardless of where they LP</td>
+          </tr>
+          <tr class="hi">
+            <td>Stablecoin yield focus</td>
+            <td>Arbitrum boosted pools, Gnosis</td>
+            <td>Arbitrum boosted stable pools (trading fees + Aave yield + BAL emissions) offer compelling stablecoin APRs. Gnosis has deep stable history</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SAFETY -->
+  <section class="card" id="safety">
+    <h2>Cross-Chain Risks: Bridge Risks and Multi-Chain LP Risks</h2>
+
+    <div class="table-wrap">
+      <table aria-label="Cross-chain risk analysis">
+        <thead>
+          <tr><th>Risk</th><th>Level</th><th>Mitigation</th></tr>
+        </thead>
+        <tbody>
+          <tr class="hi">
+            <td>Bridge smart-contract exploit</td>
+            <td class="err">High for third-party bridges</td>
+            <td>Bridges are the single largest exploit vector in DeFi. Use official rollup bridges for large amounts; limit third-party bridge exposure to amounts you can absorb losing</td>
+          </tr>
+          <tr>
+            <td>Wrong network transaction</td>
+            <td class="warn">Medium (user error)</td>
+            <td>Double-check your wallet's active network before every Balancer transaction — L2 and mainnet addresses are identical but tokens are chain-specific</td>
+          </tr>
+          <tr class="hi">
+            <td>Cross-chain gauge BAL delay</td>
+            <td class="warn">Low (inconvenience)</td>
+            <td>BAL bridging from mainnet to L2s takes time — rewards may appear delayed vs mainnet pools. This is expected behaviour, not a loss</td>
+          </tr>
+          <tr>
+            <td>L2 sequencer risk</td>
+            <td class="warn">Low-Medium</td>
+            <td>Optimistic rollups (Arbitrum, Optimism, Base) depend on sequencers — downtime or censorship by sequencer is possible though rare. Monitor network status</td>
+          </tr>
+          <tr class="hi">
+            <td>Balancer Vault exploit (cross-chain)</td>
+            <td class="warn">Medium</td>
+            <td>Each chain's Vault is independent — an exploit on one chain doesn't affect others. But cross-chain governance could theoretically be used to drain multiple chains simultaneously in an extreme attack scenario</td>
+          </tr>
+          <tr>
+            <td>Phishing across multiple chain UIs</td>
+            <td class="err">High (user-controlled)</td>
+            <td>The same phishing risk multiplies across chains — bookmark app.balancer.fi and verify the domain on every network you use it on</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- BEST PRACTICES -->
+  <section class="card" id="best-practices">
+    <h2>Best Practices for Multi-Chain Balancer Participants</h2>
+    <ul style="padding-left:1.2rem">
+      <li style="margin-bottom:.5rem"><strong>Always maintain a native gas buffer on every chain you use</strong> — running out of gas on a destination chain after bridging is one of the most frustrating and avoidable multi-chain problems. Bridge slightly more than you think you need for gas.</li>
+      <li style="margin-bottom:.5rem"><strong>Use official bridges for large transfers, third-party for speed</strong> — the security trade-off is real. For amounts above your personal bridge risk threshold, use the official rollup bridge and accept the longer wait time.</li>
+      <li style="margin-bottom:.5rem"><strong>Verify the BPT contract address on each new chain</strong> — Balancer pools on different chains have different BPT contract addresses. Never import a BPT token address from one chain onto another. Use only addresses shown in the official Balancer app on the correct network.</li>
+      <li style="margin-bottom:.5rem"><strong>Stake BPT in the gauge immediately after adding liquidity</strong> — on every chain, including L2s. Unstaked BPT earns only trading fees; gauge staking adds cross-chain BAL emissions to your income.</li>
+      <li style="margin-bottom:.5rem"><strong>Claim BAL rewards on L2s before migrating positions</strong> — unclaimed gauge rewards may be lost or require separate claiming after you unstake. Always harvest pending rewards before withdrawing LP positions.</li>
+      <li style="margin-bottom:.5rem"><strong>Keep veBAL governance on Ethereum mainnet</strong> — there is no alternative. Even if you LP entirely on L2s, you need an Ethereum mainnet presence for veBAL to participate in governance and capture bribe income.</li>
+      <li><strong>Revoke stale Balancer Vault approvals on each chain separately</strong> — approvals on Arbitrum are independent of Ethereum mainnet approvals. Use Revoke.cash on each chain where you've interacted with Balancer.</li>
+    </ul>
+  </section>
+
+  <!-- TROUBLESHOOTING -->
+  <section class="card" id="troubleshooting">
+    <h2>Troubleshooting Multi-Chain Balancer: BAL Rewards, Bridge Delays, and Network Issues</h2>
+
+    <h3>"My BAL rewards haven't appeared on my L2 gauge position"</h3>
+    <ul style="padding-left:1.2rem">
+      <li>Cross-chain BAL rewards are bridged from Ethereum mainnet after each epoch — there is a propagation delay of several hours to a day after gauge voting closes. This is normal and expected behaviour, not a loss.</li>
+      <li>Ensure your BPT is staked in the gauge (not just held in your wallet). Unstaked BPT earns no BAL emissions. Check your staked position in the Balancer app's portfolio section on the correct network.</li>
+      <li>Verify the pool has an active cross-chain gauge approval — not all pools on every network have received gauge approval. Check the Balancer governance forum for the current approved gauge list.</li>
+    </ul>
+
+    <h3>"My bridge transfer hasn't arrived on the destination chain"</h3>
+    <ul style="padding-left:1.2rem">
+      <li>Check the bridge's own status tracker with your source transaction hash — most bridges (Hop, Across, Stargate) have transfer history pages where you can see the current status of your transfer.</li>
+      <li>Confirm the source transaction succeeded on the source chain's block explorer before troubleshooting the destination. If the source transaction failed, no bridge transfer occurred and your funds remain on the source chain.</li>
+      <li>Official rollup bridges (Arbitrum, Optimism) have set processing times — Arbitrum takes ~10 minutes, Base ~20 minutes, Polygon withdrawal is 7 days. Check the expected time for your specific bridge.</li>
+    </ul>
+
+    <h3>"I'm on the wrong network and can't see my Balancer position"</h3>
+    <ul style="padding-left:1.2rem">
+      <li>Balancer positions on each chain are only visible when your wallet is connected to that specific network. Switch your wallet to the correct chain in MetaMask or your EVM wallet to view your position.</li>
+      <li>Your assets are safe — they're on the chain where you left them. Simply switch networks to view and interact with your position on that chain.</li>
+    </ul>
+
+    <div class="note">
+      <strong>Chain-specific explorers for verification:</strong> Each Balancer network has
+      its own block explorer — Arbiscan for Arbitrum, Optimistic Etherscan for Optimism,
+      BaseScan for Base, PolygonScan for Polygon. Use the correct explorer for each chain's
+      transactions — Etherscan only covers Ethereum mainnet.
+    </div>
+  </section>
+
+  <!-- EEAT -->
+  <section class="eeat" id="eeat" aria-labelledby="eeat-title">
+    <h2 id="eeat-title">Balancer Cross-Chain: Authoritative References &amp; External Sources</h2>
+
+    <h3>Balancer — Official Sources</h3>
+    <ul style="padding-left:1.2rem">
+      <li><a href="https://app.balancer.fi/" target="_blank" rel="noopener nofollow">Balancer — Official Multi-Chain App</a></li>
+      <li><a href="https://docs.balancer.fi/" target="_blank" rel="noopener nofollow">Balancer — Official Documentation</a></li>
+      <li><a href="https://forum.balancer.fi/" target="_blank" rel="noopener nofollow">Balancer — Governance Forum (Gauge Approvals)</a></li>
+      <li><a href="https://github.com/balancer" target="_blank" rel="noopener nofollow">Balancer — Smart Contracts (GitHub)</a></li>
+    </ul>
+
+    <h3>Official Network Bridges</h3>
+    <ul style="padding-left:1.2rem">
+      <li><a href="https://bridge.arbitrum.io/" target="_blank" rel="noopener nofollow">Arbitrum Bridge — Official</a></li>
+      <li><a href="https://app.optimism.io/bridge" target="_blank" rel="noopener nofollow">Optimism Bridge — Official</a></li>
+      <li><a href="https://bridge.base.org/" target="_blank" rel="noopener nofollow">Base Bridge — Official</a></li>
+      <li><a href="https://wallet.polygon.technology/" target="_blank" rel="noopener nofollow">Polygon Bridge — Official</a></li>
+    </ul>
+
+    <h3>Third-Party Bridges</h3>
+    <ul style="padding-left:1.2rem">
+      <li><a href="https://app.hop.exchange/" target="_blank" rel="noopener nofollow">Hop Protocol — Fast L2 Bridges</a></li>
+      <li><a href="https://across.to/" target="_blank" rel="noopener nofollow">Across Protocol — Intent-Based Bridge</a></li>
+      <li><a href="https://www.bungee.exchange/" target="_blank" rel="noopener nofollow">Bungee Exchange — Bridge Aggregator with Refuel</a></li>
+    </ul>
+
+    <h3>Ecosystem &amp; Data</h3>
+    <ul style="padding-left:1.2rem">
+      <li><a href="https://hiddenhand.finance/" target="_blank" rel="noopener nofollow">Hidden Hand — veBAL Cross-Chain Bribe Marketplace</a></li>
+      <li><a href="https://defillama.com/protocol/balancer" target="_blank" rel="noopener nofollow">DeFiLlama — Balancer Multi-Chain TVL Data</a></li>
+      <li><a href="https://chainlist.org/" target="_blank" rel="noopener nofollow">Chainlist — Add Networks to Your Wallet</a></li>
+      <li><a href="https://revoke.cash/" target="_blank" rel="noopener nofollow">Revoke.cash — Multi-Chain Approval Manager</a></li>
+    </ul>
+
+    <div class="note" style="margin-top:1.2rem">
+      <strong>About:</strong> Prepared by Crypto Finance Experts as a practical, SEO-oriented knowledge base for
+      <em>Balancer Cross-Chain</em>: multi-network deployments, bridging to Balancer networks, cross-chain gauges, veBAL cross-chain voting, LP migration, gas optimisation, and multi-chain strategy.
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="card" id="faq" aria-labelledby="faq-title">
+    <h2 id="faq-title" style="margin-top:0;border-top:none;padding-top:0">Balancer Cross-Chain: Frequently Asked Questions</h2>
+
+    <div class="faq-item">
+      <button class="faq-button" aria-expanded="false" aria-controls="f1" id="b1">
+        <h3>Does Balancer have its own bridge?</h3><span class="faq-plus">+</span>
+      </button>
+      <div id="f1" class="faq-content" role="region" aria-labelledby="b1">
+        <p>No — Balancer does not operate a native bridge product. Moving assets between Balancer deployments on different chains requires using third-party bridge infrastructure: official rollup bridges (Arbitrum, Optimism, Base, Polygon bridges) or fast third-party bridges (Hop, Across, Stargate, Bungee). Balancer's cross-chain infrastructure is limited to its cross-chain gauge system, which bridges BAL emissions from Ethereum mainnet to L2 pools — not a general-purpose asset bridge.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-button" aria-expanded="false" aria-controls="f2" id="b2">
+        <h3>Which chains is Balancer deployed on?</h3><span class="faq-plus">+</span>
+      </button>
+      <div id="f2" class="faq-content" role="region" aria-labelledby="b2">
+        <p>As of 2026, Balancer is deployed on Ethereum mainnet, Arbitrum One, Optimism, Polygon PoS, Base, Avalanche C-Chain, and Gnosis Chain — with ongoing expansion to additional networks. Each deployment runs the same Vault architecture and pool types. Governance (veBAL) is anchored on Ethereum mainnet, with cross-chain gauges bridging BAL rewards to pools on all other networks. Check the official Balancer documentation for the current list of active deployments as the protocol continues to expand.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-button" aria-expanded="false" aria-controls="f3" id="b3">
+        <h3>How do I earn BAL rewards on an Arbitrum Balancer pool?</h3><span class="faq-plus">+</span>
+      </button>
+      <div id="f3" class="faq-content" role="region" aria-labelledby="b3">
+        <p>To earn BAL emissions on an Arbitrum pool: (1) add liquidity to a gauge-approved pool on Balancer's Arbitrum deployment to receive BPT, (2) stake your BPT in the corresponding cross-chain gauge on Arbitrum. BAL rewards are voted by veBAL holders on Ethereum mainnet and bridged to Arbitrum via the cross-chain gauge system — typically arriving within hours of each epoch's close. Not all Arbitrum pools have cross-chain gauge approval — check the Balancer governance forum for approved pools.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-button" aria-expanded="false" aria-controls="f4" id="b4">
+        <h3>Can I vote for L2 Balancer pools with my veBAL?</h3><span class="faq-plus">+</span>
+      </button>
+      <div id="f4" class="faq-content" role="region" aria-labelledby="b4">
+        <p>Yes — veBAL gauge voting on Ethereum mainnet covers pools on all Balancer-supported networks. In the Balancer governance interface, you'll see gauge-approved pools from Ethereum, Arbitrum, Optimism, Polygon, Base, and other networks — all votable with your Ethereum mainnet veBAL position. Your votes direct BAL emissions to the specified pools, which are then bridged to the destination chain for distribution to that chain's LP stakers.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-button" aria-expanded="false" aria-controls="f5" id="b5">
+        <h3>What is the fastest way to move assets from Ethereum to Arbitrum for Balancer?</h3><span class="faq-plus">+</span>
+      </button>
+      <div id="f5" class="faq-content" role="region" aria-labelledby="b5">
+        <p>The fastest options for Ethereum to Arbitrum transfers are Across Protocol (typically 1–2 minutes for ETH and major stablecoins) and Hop Protocol (2–5 minutes). These third-party bridges provide instant liquidity from their own pools rather than waiting for rollup finality. For maximum security at slightly slower speed (10–15 minutes), use the official Arbitrum bridge at bridge.arbitrum.io. Always compare fees and speed on Bungee or 1inch for your specific token and amount before executing.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-button" aria-expanded="false" aria-controls="f6" id="b6">
+        <h3>Why does withdrawing from Base back to Ethereum take 7 days?</h3><span class="faq-plus">+</span>
+      </button>
+      <div id="f6" class="faq-content" role="region" aria-labelledby="b6">
+        <p>Base is an optimistic rollup — it assumes transactions are valid and only proves fraud if someone challenges them. The 7-day withdrawal window is the "challenge period" during which anyone can submit a fraud proof to contest an invalid state. This period protects users from sequencer fraud. For faster exits without waiting 7 days, use a third-party bridge (Stargate, Bungee, Across) that fronts the liquidity on Ethereum immediately and later settles through the official bridge on your behalf, charging a small fee for the service.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-button" aria-expanded="false" aria-controls="f7" id="b7">
+        <h3>Is it safe to LP on Balancer's L2 deployments?</h3><span class="faq-plus">+</span>
+      </button>
+      <div id="f7" class="faq-content" role="region" aria-labelledby="b7">
+        <p>Balancer's L2 deployments use the same audited Vault codebase as mainnet, with the additional consideration that each L2 also carries the specific chain's security assumptions (sequencer trust for optimistic rollups, validator trust for PoS chains). The risk profile is: Balancer smart-contract risk + bridge risk (for moving assets there) + L2 infrastructure risk. In practice, Arbitrum, Optimism, and Base are widely used and considered reputable L2 environments. The incremental risk vs mainnet is low for established chains, higher for newer or experimental deployments.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-button" aria-expanded="false" aria-controls="f8" id="b8">
+        <h3>How do I check if a Balancer pool on an L2 has cross-chain gauge approval?</h3><span class="faq-plus">+</span>
+      </button>
+      <div id="f8" class="faq-content" role="region" aria-labelledby="b8">
+        <p>Check the Balancer governance forum (forum.balancer.fi) for governance proposals that approved cross-chain gauges. In the Balancer app, pools with approved cross-chain gauges show a gauge staking option — if no staking option appears for a pool's BPT, it likely doesn't have gauge approval. You can also check the Balancer gauge controller on Ethereum mainnet via Etherscan to see which gauges are registered, including cross-chain ones listed with their destination network identifier.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-button" aria-expanded="false" aria-controls="f9" id="b9">
+        <h3>What gas token do I need for each Balancer network?</h3><span class="faq-plus">+</span>
+      </button>
+      <div id="f9" class="faq-content" role="region" aria-labelledby="b9">
+        <p>Each network uses a different native gas token: Ethereum mainnet, Arbitrum, Optimism, and Base all use ETH for gas. Polygon PoS uses MATIC. Avalanche uses AVAX. Gnosis Chain uses xDAI. When bridging to any of these networks, ensure you either bridge a small amount of the gas token alongside your main assets, or use a bridge with a gas drop feature (Bungee Refuel) that deposits native gas to your destination wallet as part of the bridge transaction. Arriving on a new chain with zero gas means you cannot interact with Balancer until you acquire gas through another method.</p>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<footer class="container" role="contentinfo" style="padding:2.5rem 0; border-top:1px solid var(--line); margin-top:2rem">
+  <p style="color:var(--dim); font-size:.93rem">© 2026 Balancer Cross-Chain Guide. Educational content with a security-first operational focus. Not financial advice.</p>
+</footer>
+
+<script>
+  document.querySelectorAll('.faq-button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const isOpen = btn.getAttribute('aria-expanded') === 'true';
+      document.querySelectorAll('.faq-button').forEach(b => {
+        b.setAttribute('aria-expanded', 'false');
+        const c = document.getElementById(b.getAttribute('aria-controls'));
+        c.classList.remove('open'); c.style.maxHeight = '0';
+      });
+      if (!isOpen) {
+        btn.setAttribute('aria-expanded', 'true');
+        const content = document.getElementById(btn.getAttribute('aria-controls'));
+        content.classList.add('open');
+        content.style.maxHeight = content.scrollHeight + 'px';
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
